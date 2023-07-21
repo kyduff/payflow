@@ -10,6 +10,8 @@ import { Web3Modal } from '@web3modal/react'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { polygon, goerli, gnosis, polygonMumbai } from 'wagmi/chains'
 
+import {Header} from "@/components/Header";
+
 const chains = [polygon, goerli, gnosis, polygonMumbai]
 const projectId = "6b68f87fefde2fdd5ec584b002af170f"
 
@@ -27,7 +29,9 @@ function App({ Component, pageProps }: AppProps) {
     <>
       <WagmiConfig config={wagmiConfig}>
         <ChakraProvider>
+        <Header/>
           <Component {...pageProps} />
+          
         </ChakraProvider>
       </WagmiConfig>
 

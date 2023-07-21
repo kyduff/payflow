@@ -6,7 +6,7 @@ export default function RecipientDetails() {
       <Input placeholder="Account holder"/>
       <Input placeholder="IBAN"/>
       <Input placeholder="Amount"/>
-      <Input placeholder="Memo"/>
+      <Input placeholder="Reference"/>
     </VStack>
   )
 }
