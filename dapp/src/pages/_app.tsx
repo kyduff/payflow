@@ -8,9 +8,9 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import { polygon, goerli, gnosis } from 'wagmi/chains'
+import { polygon, goerli, gnosis, polygonMumbai } from 'wagmi/chains'
 
-const chains = [polygon, goerli, gnosis]
+const chains = [polygon, goerli, gnosis, polygonMumbai]
 const projectId = "6b68f87fefde2fdd5ec584b002af170f"
 
 const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
