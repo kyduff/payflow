@@ -1,6 +1,6 @@
 import RecipientDetails from "@/components/RecipientDetails";
 import ScanQR from "@/components/ScanQR";
-import { VStack } from "@chakra-ui/react";
+import { Button, VStack } from "@chakra-ui/react";
 
 export default function Pay() {
   return (
@@ -9,6 +9,7 @@ export default function Pay() {
       <ScanQR />
       <h2>or</h2>
       <RecipientDetails />
+      <Button colorScheme="green">Pay</Button>
     </VStack>
   )
 }
