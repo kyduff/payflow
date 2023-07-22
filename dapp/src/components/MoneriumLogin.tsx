@@ -23,7 +23,7 @@ export default function MoneriumLogin({ safe }: {safe: string}) {
     let authFlowUrl = client.getAuthFlowURI({
       client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
       // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
-      redirect_uri: "http://localhost:3000/pay/",
+      redirect_uri: "https://payflow-self.vercel.app/pay/",
       code_challenge: codeChallenge,
       code_challenge_method: "S256"
 

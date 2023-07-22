@@ -23,6 +23,7 @@ interface OrderDetails {
 }
 
 const ORDER_KEY = "payflow.orderDetails";
+const REFRESH_KEY = "payflow.refreshKey";
 const CURRENCY = "eur";
 const CHAIN = "polyon";
 const NETWORK = "mumbai";
@@ -51,20 +52,27 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
         }))
       }
 
-      if (!code) {
+      const refresh = window.localStorage.getItem(REFRESH_KEY);
+
+      if (!refresh && !code) {
         console.log("no code");
         return;
       }
 
       const _client = new MoneriumClient("sandbox");
 
-      await _client.auth({
+      const profile = await _client.auth({
         client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
         // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
         code: code,
+        refresh_token: refresh,
         code_verifier: window.localStorage.getItem("codeVerifier"),
-        redirect_uri: "http://localhost:3000/pay/"
+        redirect_uri: "https://payflow-self.vercel.app/pay/"
       })
+
+      console.log(profile.refresh_token)
+
+      window.localStorage.setItem(REFRESH_KEY, profile.refresh_token)
 
       setClient(_client);
     })();
