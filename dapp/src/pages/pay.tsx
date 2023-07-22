@@ -8,7 +8,7 @@ import { ethers } from "ethers";
 import { MoneriumPack, SafeMoneriumClient } from '@safe-global/onramp-kit';
 import Safe, { EthersAdapter } from '@safe-global/protocol-kit';
 import { type WalletClient, getWalletClient } from '@wagmi/core'
-import { useNetwork, useSignMessage } from "wagmi";
+import { useAccount, useNetwork, useSignMessage } from "wagmi";
 import { useEffect, useState } from "react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 //@ts-ignore
@@ -22,27 +22,45 @@ interface OrderDetails {
   memo: string,
 }
 
-export default function Pay({ code }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+const ORDER_KEY = "payflow.orderDetails";
+const CURRENCY = "eur";
+const CHAIN = "polyon";
+const NETWORK = "mumbai";
+
+export default function Pay({ code, amount, iban, companyName, memo }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   console.log(code);
 
   const [client, setClient] = useState<MoneriumClient>();
   const [orderDetails, setOrderDetails] = useState<OrderDetails>();
+  const { address } = useAccount();
 
   const { data, signMessageAsync } = useSignMessage();
 
+
+
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
+
+      if (amount && iban && companyName && memo) {
+        window.localStorage.setItem(ORDER_KEY, JSON.stringify({
+          amount,
+          iban,
+          companyName,
+          memo,
+        }))
+      }
+
       if (!code) {
         console.log("no code");
         return;
       }
-  
-      const _client = new MoneriumClient("production");
-  
+
+      const _client = new MoneriumClient("sandbox");
+
       await _client.auth({
-        // client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
-        client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
+        client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+        // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
         code: code,
         code_verifier: window.localStorage.getItem("codeVerifier"),
         redirect_uri: "http://localhost:3000/pay/"
@@ -55,24 +73,23 @@ export default function Pay({ code }: InferGetServerSidePropsType<typeof getServ
   const handlePay = async function () {
 
     // TODO: place order and subscribe to order status
-    const balances = await client.getBalances();
-    console.log(balances);
+    const localDetails = window.localStorage.getItem(ORDER_KEY);
+    if (!localDetails) return;
 
-    const currency = "eur";
-    const amount = "0.5";
-    const iban = "DE92 1001 1001 2621 3427 45";
+    const { amount, iban, companyName, memo } = JSON.parse(localDetails);
 
-    const message = formatMessage(currency, amount, iban, new Date())
-    const signature = await signMessageAsync({message})
+    console.log({ amount, iban, companyName, memo });
+
+    const message = formatMessage(CURRENCY, amount, iban, new Date())
+    const signature = await signMessageAsync({ message })
 
     const order = {
-      address: "0x02c7BFfEDBBaFa1244dBDd5338b303e7DeD4115D",
+      address: address,
       amount: amount,
-      chain: "polygon",
+      chain: CHAIN,
       counterpart: {
         details: {
-          firstName: "Jan Ole",
-          lastName: "Ernst",
+          companyName
         },
         identifier: {
           iban: iban,
@@ -80,14 +97,17 @@ export default function Pay({ code }: InferGetServerSidePropsType<typeof getServ
         }
       },
       message: message,
-      memo: "Inaugural transfer",
-      network: "mainnet",
+      memo: memo,
+      network: NETWORK,
       signature: signature,
     }
 
     console.log(order);
 
-    client.placeOrder(order);
+    const orderRes = await client.placeOrder(order);
+    console.log(orderRes);
+
+    // TODO: on complete, clear local storage
 
   }
 
@@ -96,16 +116,33 @@ export default function Pay({ code }: InferGetServerSidePropsType<typeof getServ
       <h1>Pay</h1>
       <ScanQR />
       <h2>or</h2>
-      <RecipientDetails setOrderDetails={setOrderDetails}/>
+      <RecipientDetails setOrderDetails={setOrderDetails} />
       <Button colorScheme="green" onClick={handlePay}>Pay</Button>
     </VStack>
   )
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  code: string | null
+  code: string | null,
+  amount: string | null,
+  iban: string | null,
+  companyName: string | null,
+  memo: string | null,
 }> = async ({ query }) => {
   const code = query.code as string;
-  if (!code) return { props: { code: null } }
-  return { props: { code: code } }
+
+  const amount = query.amount as string;
+  const iban = query.iban as string;
+  const companyName = query.companyName as string;
+  const memo = query.memo as string;
+
+  const _prop = {
+    code: (!code) ? null : code,
+    amount: (!amount) ? null : amount,
+    iban: (!iban) ? null : iban,
+    companyName: (!companyName) ? null : companyName,
+    memo: (!memo) ? null : memo,
+  }
+
+  return { props: _prop }
 }
