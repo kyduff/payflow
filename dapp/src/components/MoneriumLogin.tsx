@@ -5,45 +5,40 @@ import { MoneriumPack } from '@safe-global/onramp-kit';
 import Safe, { EthersAdapter } from '@safe-global/protocol-kit';
 import { type WalletClient, getWalletClient } from '@wagmi/core'
 import { useAccount, useNetwork } from "wagmi";
+//@ts-ignore
+import { MoneriumClient } from '@monerium/sdk';
+import CryptoJS from 'crypto-js';
+
 
 export default function MoneriumLogin({ safe }: {safe: string}) {
 
-  const { chain } = useNetwork();
-  const { address } = useAccount();
-
-  const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6";
-  // const SAFE_ADDRESS = "0xa208B9468730A17f7dd575d6762cAde9ebA6b1ec"; // Polygon
-  const SAFE_ADDRESS = "0x58da951b17Cb5A6449468f21e6887f81BBA73620"; // Gnosis
-  const SIGNER_ADDRESS = "0xb7CF83796d911eD42592a625B95753A3Cfdd7feE";
-  const REDIRECT_URL = 'http://localhost:3000/pay/';
-
-  if (!safe) safe = SAFE_ADDRESS; // TODO: remove
-
   const loginWithMonerium = async function () {
 
+    const client = new MoneriumClient("sandbox");
 
-    // Configure Safe SDK
-    const provider = await getEthersSigner({ chainId: chain?.id });
-    if (!provider) return
-    const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: provider.getSigner(address) });
-    const safeSdk = await Safe.create({
-      ethAdapter: ethAdapter,
-      safeAddress: safe,
-      // isL1SafeMasterCopy: true,
-    });
+    const codeVerifier = CryptoJS.lib.WordArray.random(64).toString();
+    const codeChallenge = CryptoJS.enc.Base64url.stringify(CryptoJS.SHA256(codeVerifier));
 
+    // Construct the authFlowUrl for your application and redirect your customer.
+    let authFlowUrl = client.getAuthFlowURI({
+      client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+      // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
+      redirect_uri: "https://payflow-self.vercel.app/pay/",
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256"
 
-    // Configure Monerium
-    const moneriumPack = new MoneriumPack({
-      clientId: CLIENT_ID,
-      environment: 'sandbox',
+      // TODO: autofill network details using wagmi
+      // network: "mumbai",
+      // chain: "polygon",
+      // address: "0xValidAddress72413Fa92980B889A1eCE84dD",
+      // signature: "0xValidSignature0df2b6c9e0fc067ab29bdbf322bec30aad7c46dcd97f62498a91ef7795957397e0f49426e000b0f500c347219ddd98dc5080982563055e918031c"
     })
 
-    await moneriumPack.init({ safeSdk });
+    console.log(authFlowUrl);
 
-    await moneriumPack.open({
-      redirectUrl: REDIRECT_URL,
-    })
+    window.localStorage.setItem("codeVerifier", client.codeVerifier)
+
+    window.location.replace(authFlowUrl);
   }
 
   return (

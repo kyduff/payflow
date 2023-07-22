@@ -1,4 +1,5 @@
 import RecipientDetails from "@/components/RecipientDetails";
+import RenderRecipientDetails from "@/components/RenderRecipientDetails";
 import ScanQR from "@/components/ScanQR";
 import { Button, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -8,76 +9,175 @@ import { ethers } from "ethers";
 import { MoneriumPack, SafeMoneriumClient } from '@safe-global/onramp-kit';
 import Safe, { EthersAdapter } from '@safe-global/protocol-kit';
 import { type WalletClient, getWalletClient } from '@wagmi/core'
-import { useNetwork } from "wagmi";
+import { useAccount, useNetwork, useSignMessage } from "wagmi";
 import { useEffect, useState } from "react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+//@ts-ignore
+import { MoneriumClient } from '@monerium/sdk';
+import { formatMessage } from "@/utils/formatting";
 
-export default function Pay({ code }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+interface OrderDetails {
+  accountHolder: string,
+  iban: string,
+  amount: string,
+  memo: string,
+}
 
-  const { chain } = useNetwork();
+const ORDER_KEY = "payflow.orderDetails";
+const REFRESH_KEY = "payflow.refreshKey";
+const CURRENCY = "eur";
+const CHAIN = "polyon";
+const NETWORK = "mumbai";
 
-  const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6";
-  // const SAFE_ADDRESS = "0xa208B9468730A17f7dd575d6762cAde9ebA6b1ec"; // Polygon
-  const SAFE_ADDRESS = "0x58da951b17Cb5A6449468f21e6887f81BBA73620"; // Gnosis
-  const SIGNER_ADDRESS = "0xb7CF83796d911eD42592a625B95753A3Cfdd7feE";
-  const REDIRECT_URL = 'http://localhost:3000/pay/';
+export default function Pay({ code, amount, iban, companyName, memo }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   console.log(code);
 
+  const [client, setClient] = useState<MoneriumClient>();
+  const [orderDetails, setOrderDetails] = useState<OrderDetails>();
+  const { address } = useAccount();
+
+  const { data, signMessageAsync } = useSignMessage();
+  const[render, setRender] = useState(false);
+  const[iban_rend, setIban] = useState("");
+  const[companyName_rend, setCompanyName] = useState("");
+  const[amount_rend, setAmount] = useState("");
+  const[memo_rend, setMemo] = useState("");
+
+
+  useEffect(() => {
+    ; (async () => {
+
+      if (amount && iban && companyName && memo) {
+        window.localStorage.setItem(ORDER_KEY, JSON.stringify({
+          amount,
+          iban,
+          companyName,
+          memo,
+        }))
+        setRender(true);
+        setIban(iban);
+        setCompanyName(companyName);
+        setAmount(amount);
+        setMemo(memo);
+      }
+
+      const refresh = window.localStorage.getItem(REFRESH_KEY);
+      const _client = new MoneriumClient("sandbox");
+      var _profile;
+
+      if (refresh) {
+        _profile = await _client.auth({
+          client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+          // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
+          // code: code,
+          refresh_token: refresh,
+          code_verifier: window.localStorage.getItem("codeVerifier"),
+          redirect_uri: "https://payflow-self.vercel.app/pay/"
+        })
+      } else if (code) {
+        _profile = await _client.auth({
+          client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+          // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
+          code: code,
+          // refresh_token: refresh,
+          code_verifier: window.localStorage.getItem("codeVerifier"),
+          redirect_uri: "https://payflow-self.vercel.app/pay/"
+        })
+      } else {
+        console.log("no code");
+        return;
+      }
+
+      console.log(_profile.refresh_token)
+
+      if (_profile.refresh_token) {
+        window.localStorage.setItem(REFRESH_KEY, _profile.refresh_token)
+      }
+
+      setClient(_client);
+    })();
+  }, [code]);
+
   const handlePay = async function () {
 
-    // Configure Safe SDK
-    const provider = await getEthersSigner({ chainId: chain?.id });
-    if (!provider) return
-    const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: provider.getSigner(SIGNER_ADDRESS) });
-    const safeSdk = await Safe.create({
-      ethAdapter: ethAdapter,
-      safeAddress: SAFE_ADDRESS,
-    });
+    // TODO: place order and subscribe to order status
+    const localDetails = window.localStorage.getItem(ORDER_KEY);
+    if (!localDetails) return;
 
-    // Configure Monerium
-    const moneriumPack = new MoneriumPack({
-      clientId: CLIENT_ID,
-      environment: 'sandbox',
-    })
+    const { amount, iban, companyName, memo } = JSON.parse(localDetails);
 
-    await moneriumPack.init({ safeSdk });
+    console.log({ amount, iban, companyName, memo });
 
-    const safeMoneriumClient = await moneriumPack.open({
-      authCode: code as string,
-      redirectUrl: REDIRECT_URL,
-    });
-    console.log(safeMoneriumClient);
+    const message = formatMessage(CURRENCY, amount, iban, new Date())
+    const signature = await signMessageAsync({ message })
 
-    const authContext = await safeMoneriumClient.getAuthContext()
-    const profile = await safeMoneriumClient.getProfile(authContext.defaultProfile)
-    const balances = await safeMoneriumClient.getBalances()
-    const orders = await safeMoneriumClient.getOrders()
+    const order = {
+      address: address,
+      amount: amount,
+      chain: CHAIN,
+      counterpart: {
+        details: {
+          companyName
+        },
+        identifier: {
+          iban: iban,
+          standard: "iban",
+        }
+      },
+      message: message,
+      memo: memo,
+      network: NETWORK,
+      signature: signature,
+    }
 
-    console.log({
-      authContext,
-      profile,
-      balances,
-      orders,
-    })
+    console.log(order);
+
+    const orderRes = await client.placeOrder(order);
+    console.log(orderRes);
+
+    // TODO: on complete, clear local storage
 
   }
 
   return (
     <VStack>
-      <h1>Pay</h1>
-      <ScanQR />
-      <h2>or</h2>
-      <RecipientDetails />
+      {render ? (
+        <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
+      ) : (
+        <>
+        <h1>Pay</h1>
+        <ScanQR />
+        <h2>or</h2>
+        <RecipientDetails setOrderDetails={setOrderDetails} />
+        </>
+      )}
       <Button colorScheme="green" onClick={handlePay}>Pay</Button>
     </VStack>
   )
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  code: string | null
+  code: string | null,
+  amount: string | null,
+  iban: string | null,
+  companyName: string | null,
+  memo: string | null,
 }> = async ({ query }) => {
   const code = query.code as string;
-  if (!code) return { props: { code: null } }
-  return { props: { code: code } }
+
+  const amount = query.amount as string;
+  const iban = query.iban as string;
+  const companyName = query.companyName as string;
+  const memo = query.memo as string;
+
+  const _prop = {
+    code: (!code) ? null : code,
+    amount: (!amount) ? null : amount,
+    iban: (!iban) ? null : iban,
+    companyName: (!companyName) ? null : companyName,
+    memo: (!memo) ? null : memo,
+  }
+
+  return { props: _prop }
 }
