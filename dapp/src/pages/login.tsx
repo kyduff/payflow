@@ -1,5 +1,5 @@
 import MoneriumLogin from "@/components/MoneriumLogin";
-import { Button, VStack } from "@chakra-ui/react";
+import { Button, Input, VStack } from "@chakra-ui/react";
 import { Web3Button } from "@web3modal/react";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 export default function Login() {
 
   const [loaded, setLoaded] = useState<boolean>(false);
+  const [safe, setSafe] = useState<string>("");
   const { address, isConnected } = useAccount();
 
   useEffect(() => {
@@ -19,8 +20,9 @@ export default function Login() {
         <VStack>
           <h1>payflow</h1>
           <Web3Button />
+          <Input onChange={(e) => setSafe(e.target.value)} />
           <div>
-            {isConnected && <MoneriumLogin />}
+            {isConnected && <MoneriumLogin safe={safe} />}
           </div>
         </VStack>
       }

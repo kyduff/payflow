@@ -17,7 +17,8 @@ export default function Pay({ code }: InferGetServerSidePropsType<typeof getServ
   const { chain } = useNetwork();
 
   const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6";
-  const SAFE_ADDRESS = "0xa208B9468730A17f7dd575d6762cAde9ebA6b1ec";
+  // const SAFE_ADDRESS = "0xa208B9468730A17f7dd575d6762cAde9ebA6b1ec"; // Polygon
+  const SAFE_ADDRESS = "0x58da951b17Cb5A6449468f21e6887f81BBA73620"; // Gnosis
   const SIGNER_ADDRESS = "0xb7CF83796d911eD42592a625B95753A3Cfdd7feE";
   const REDIRECT_URL = 'http://localhost:3000/pay/';
 
