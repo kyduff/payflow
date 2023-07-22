@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@0no-co/graphql.web@^1.0.1":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.4.tgz#9606eb651955499525d068ce0ad8bea596286ce2"
+  integrity sha512-W3ezhHGfO0MS1PtGloaTpg0PbaT8aZSmmaerL7idtU5F7oCI+uu25k+MsMS31BVFlp4aMkHSrNRxiD72IlK8TA==
+
 "@adraffy/ens-normalize@1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.9.0.tgz#223572538f6bea336750039bb43a4016dcc8182d"
@@ -1618,6 +1623,18 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
+"@quicknode/sdk@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@quicknode/sdk/-/sdk-1.1.0.tgz#275e3417b2fd4cf772d3d3839e2a2ad172f7ef31"
+  integrity sha512-BwnEsERr9mI0KdyapKXui30+3MT+OKqjx2AK9rdw8Vm2UFXZcMr8VnDeqo4JxxKt3WGauFFZC5lH9exQ0BfhCA==
+  dependencies:
+    "@urql/core" "^4.0.7"
+    "@urql/exchange-graphcache" "^6.0.4"
+    cross-fetch "^3.1.6"
+    tslib "^2.5.3"
+    viem "^1.2.0"
+    zod "^3.21.4"
+
 "@safe-global/api-kit@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@safe-global/api-kit/-/api-kit-1.3.0.tgz#3606aa52a3d5d0d46817fafc38572be7be1eaf31"
@@ -2092,6 +2109,23 @@
   integrity sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==
   dependencies:
     "@types/node" "*"
+
+"@urql/core@>=4.1.0", "@urql/core@^4.0.7":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@urql/core/-/core-4.1.0.tgz#2c266a741105129ccced572b9295436dc1ea8441"
+  integrity sha512-mQLO6RAOhITvq6oktFzsEuAngdVwJbTuS+XaZi6evUQu797MXhI0smldEkWg9osvn/I2dyO57oR3LpxpMr9nTg==
+  dependencies:
+    "@0no-co/graphql.web" "^1.0.1"
+    wonka "^6.3.2"
+
+"@urql/exchange-graphcache@^6.0.4":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@urql/exchange-graphcache/-/exchange-graphcache-6.2.0.tgz#ff6c858cf7dba679a50cf577307e86c05b0028ae"
+  integrity sha512-d8SHgY47HeOziNLciinFz1olKclMBUfILBQFTnHq4Lqsu4XGT/jnqFaPR5hTWiwPR8NkiXprvyQ8elJhfrMhrA==
+  dependencies:
+    "@0no-co/graphql.web" "^1.0.1"
+    "@urql/core" ">=4.1.0"
+    wonka "^6.3.2"
 
 "@wagmi/chains@1.6.0":
   version "1.6.0"
@@ -3220,7 +3254,7 @@ create-hmac@^1.1.4, create-hmac@^1.1.7:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-cross-fetch@^3.1.4, cross-fetch@^3.1.5:
+cross-fetch@^3.1.4, cross-fetch@^3.1.5, cross-fetch@^3.1.6:
   version "3.1.8"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.8.tgz#0327eba65fd68a7d119f8fb2bf9334a1a7956f82"
   integrity sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg==
@@ -5922,7 +5956,7 @@ tslib@2.4.0:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
   integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
-tslib@^2.0.0, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1, tslib@^2.4.0:
+tslib@^2.0.0, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1, tslib@^2.4.0, tslib@^2.5.3:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.6.0.tgz#b295854684dbda164e181d259a22cd779dcd7bc3"
   integrity sha512-7At1WUettjcSRHXCyYtTselblcHl9PJFFVKiCAy/bY97+BPZXSQ2wbq0P9s8tK2G7dFQfNnlJnPAiArVBVBsfA==
@@ -6118,6 +6152,21 @@ viem@^1.0.0, viem@^1.3.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/viem/-/viem-1.3.1.tgz#47ed788180f693736a177a9c68b4b43a07d84b7e"
   integrity sha512-Yv+y3/exrrEN4EAkVUtUuQxsjF4+3taHY2aSinJnNWtcA4fBZ+WfPJBTywcnFIa/Q5oDcQN85yqPFBbkXqWHdw==
+  dependencies:
+    "@adraffy/ens-normalize" "1.9.0"
+    "@noble/curves" "1.0.0"
+    "@noble/hashes" "1.3.0"
+    "@scure/bip32" "1.3.0"
+    "@scure/bip39" "1.2.0"
+    "@wagmi/chains" "1.6.0"
+    abitype "0.9.3"
+    isomorphic-ws "5.0.0"
+    ws "8.12.0"
+
+viem@^1.2.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.4.0.tgz#a25d12ebc56aba7d201f8590de55c3ae2db6844d"
+  integrity sha512-TqkkQo0Tz3+qtL9YdaSa4ce4dBBE5WSj/iQG70SJMZPEPnuWv6iMjSWwD89CI1YnXeJJTsOMlzLRgjPEeTXxtw==
   dependencies:
     "@adraffy/ens-normalize" "1.9.0"
     "@noble/curves" "1.0.0"
@@ -6419,6 +6468,11 @@ which-typed-array@^1.1.11, which-typed-array@^1.1.2:
     gopd "^1.0.1"
     has-tostringtag "^1.0.0"
 
+wonka@^6.3.2:
+  version "6.3.3"
+  resolved "https://registry.yarnpkg.com/wonka/-/wonka-6.3.3.tgz#aa99fa5f9303a32517497918fdd0208175e7edbe"
+  integrity sha512-id4wYGsT6aEc8/3+by7NTHvTe0DwsOjv7vah0K0+AorV1MHKuS3OQ2g8DGsem1OEXrNShbVLPsg4kG2O6GZ2SQ==
+
 wrap-ansi@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-6.2.0.tgz#e9393ba07102e6c91a3b221478f0257cd2856e53"
@@ -6552,7 +6606,7 @@ yargs@^15.3.1:
     y18n "^4.0.0"
     yargs-parser "^18.1.2"
 
-zod@3.21.4:
+zod@3.21.4, zod@^3.21.4:
   version "3.21.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.21.4.tgz#10882231d992519f0a10b5dd58a38c9dabbb64db"
   integrity sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==
