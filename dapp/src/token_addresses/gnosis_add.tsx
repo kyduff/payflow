@@ -8,12 +8,3 @@ const tokenAddresses_gno: string[] = [
     
 export default tokenAddresses_gno;
 
-const tokenNames_gno: string[] = [
-    "EURe",
-    "MATIC",
-    "WETH",
-    "USDT",
-    "GNO",
-    ];
-
-export {tokenNames_gno};

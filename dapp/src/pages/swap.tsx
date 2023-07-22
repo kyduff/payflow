@@ -11,12 +11,18 @@ import { useRouter } from "next/router";
 
 import AccordionBalance from "@/components/render_BalanceAccordion";
 import tokenNames_poly from '../token_addresses/poly_name';
+import tokenAddresses_poly from '../token_addresses/polygon_add';
+import tokenPrices_poly from "./fx_rates/polygon";
+import tokenNames_gno from '../token_addresses/gnosis_names';
+import tokenAddresses_gno from '../token_addresses/gnosis_add';
+
+
+import { sellToEURe } from "@/utils/1inch/sell";
 
 
 import { getEthersSigner } from "@/utils/EthersProvider";
 import { ethers } from "ethers";
 import { MoneriumPack, SafeMoneriumClient } from '@safe-global/onramp-kit';
-import Safe, { EthersAdapter } from '@safe-global/protocol-kit';
 import { type WalletClient, getWalletClient } from '@wagmi/core'
 import { useNetwork, useAccount } from "wagmi";
 import { useEffect, useState } from "react";
@@ -25,16 +31,14 @@ import { display_tokens } from "@/components/fetch_tokens";
 
 
 
-export default function Swap({ code }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function handleSwap({ code }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
     const { chain } = useNetwork();
     const { address } = useAccount();
 
-    const [balance1, setBalance1] = useState("");
-    const [balance2, setBalance2] = useState("");
-    const [balance3, setBalance3] = useState("");
-    const [balance4, setBalance4] = useState("");
-    const [balance5, setBalance5] = useState("");
+    const [balances, setBalances] = useState([]);
+    const [chain_id, setChainId] = useState<number>(0);
+    const [placed_swap, setPlacedSwap] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -42,46 +46,71 @@ export default function Swap({ code }: InferGetServerSidePropsType<typeof getSer
         {
           if (!address) return;
           const balance_array= await display_tokens(address, chain);
-          setBalance1(balance_array[0]);
-          setBalance2(balance_array[1]);
-          setBalance3(balance_array[2]);
-          setBalance4(balance_array[3]);
-          setBalance5(balance_array[4]);
-          console.log(balance_array);
+          const obj: { id?: number } = {chain};
+          const chain_id = chain?.id;
+          setChainId(chain_id);
+          setBalances(balance_array);
         })();}, []);
 
+    //TODO conditional on chain use other token names/exch rates
+    const tokenName_array= tokenNames_poly;
+    const tokenFX_array= tokenPrices_poly;
 
-    const tokenName_array= tokenNames_poly;    
+  const handleSwap= async function (EURe_swap_amount: number, swap_token_ind: number) {
+
+      //convert into wei for selltoEURe call
+      const value_swap = EURe_swap_amount*tokenFX_array[swap_token_ind]*10**18;
+      if (!address && chain) return;
+  
+      const swap_params = {
+        chain: 137,
+        fromAddress: address,
+        fromToken: tokenAddresses_poly[swap_token_ind],
+        amount: value_swap,
+      }
+
+      console.log(swap_params);
+      if (!swap_params.fromAddress) return;
+      const swap = await sellToEURe(swap_params.chain, swap_params.fromAddress, swap_params.fromToken, swap_params.amount.toString());
+      //console.log(swap);
+  
+      setPlacedSwap(true);  
+    }
+
+    //const test=handleSwap(1, 0);
     
+    //the first accordion is always in EURe so no swap, direct payment
 
     return (
     <>
       <Accordion allowToggle>
-      <AccordionItem>
+        <AccordionItem>
         <h2>
           <AccordionButton>
             <Box as="span" flex='1' textAlign='left'>
-              {tokenName_array[0]} {balance1}
+              {tokenName_array[0]} {balances[0]}
             </Box>
             <AccordionIcon />
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay</Button>
+          
+        <Button colorScheme="green">Pay with {tokenName_array[0]}</Button>
         </AccordionPanel>
       </AccordionItem>
+      
     
       <AccordionItem>
       <h2>
           <AccordionButton>
             <Box as="span" flex='1' textAlign='left'>
-              {tokenName_array[1]} {balance2}
+              {tokenName_array[1]} {balances[1]}
             </Box>
             <AccordionIcon />
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay</Button>
+        <Button colorScheme="green" onClick={() => handleSwap(0.01,1)} >Pay with {tokenName_array[1]}</Button>
         </AccordionPanel>
       </AccordionItem>
 
@@ -89,13 +118,13 @@ export default function Swap({ code }: InferGetServerSidePropsType<typeof getSer
       <h2>
           <AccordionButton>
             <Box as="span" flex='1' textAlign='left'>
-              {tokenName_array[2]} {balance3}
+              {tokenName_array[2]} {balances[2]}
             </Box>
             <AccordionIcon />
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay</Button>
+        <Button colorScheme="green">Pay with {tokenName_array[2]}</Button>
         </AccordionPanel>
       </AccordionItem>
 
@@ -103,13 +132,13 @@ export default function Swap({ code }: InferGetServerSidePropsType<typeof getSer
       <h2>
           <AccordionButton>
             <Box as="span" flex='1' textAlign='left'>
-              {tokenName_array[3]} {balance4}
+              {tokenName_array[3]} {balances[3]}
             </Box>
             <AccordionIcon />
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay</Button>
+        <Button colorScheme="green">Pay with {tokenName_array[3]}</Button>
         </AccordionPanel>
       </AccordionItem>
 
@@ -117,13 +146,13 @@ export default function Swap({ code }: InferGetServerSidePropsType<typeof getSer
       <h2>
           <AccordionButton>
             <Box as="span" flex='1' textAlign='left'>
-              {tokenName_array[4]} {balance5}
+              {tokenName_array[4]} {balances[4]}
             </Box>
             <AccordionIcon />
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay</Button>
+        <Button colorScheme="green">Pay with {tokenName_array[4]}</Button>
         </AccordionPanel>
       </AccordionItem>
      </Accordion>
