@@ -6,14 +6,4 @@ const tokenAddresses_poly: string[] = [
     "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", //USDC
     ];
     
-export default tokenAddresses_poly;
-
-const tokenNames_poly: string[] = [
-    "EURe",
-    "MATIC",
-    "WETH",
-    "ApeCoin",
-    "USDC",
-    ];
-
-export {tokenNames_poly};
+    export default tokenAddresses_poly;
