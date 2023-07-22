@@ -1,7 +1,7 @@
 import RecipientDetails from "@/components/RecipientDetails";
 import RenderRecipientDetails from "@/components/RenderRecipientDetails";
 import ScanQR from "@/components/ScanQR";
-import { Button, VStack } from "@chakra-ui/react";
+import { Button, Heading, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 import { getEthersSigner } from "@/utils/EthersProvider";
@@ -15,6 +15,7 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 //@ts-ignore
 import { MoneriumClient } from '@monerium/sdk';
 import { formatMessage } from "@/utils/formatting";
+import MoneriumLogin from "@/components/MoneriumLogin";
 
 interface OrderDetails {
   accountHolder: string,
@@ -26,8 +27,18 @@ interface OrderDetails {
 const ORDER_KEY = "payflow.orderDetails";
 const REFRESH_KEY = "payflow.refreshKey";
 const CURRENCY = "eur";
-const CHAIN = "polyon";
-const NETWORK = "mumbai";
+
+const CHAIN = "polygon";
+const NETWORK = "mainnet";
+
+// const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6"; // Kyle
+const CLIENT_ID = "ef7ce008-287e-11ee-81b4-4a6f281798e0"; // Jan
+
+const REDIRECT_URI = "https://payflow-self.vercel.app/pay/";
+// const REDIRECT_URI = "http://localhost:3000/pay/";
+
+// const MON_ENV = "sandbox";
+const MON_ENV = "production";
 
 export default function Pay({ code, amount, iban, companyName, memo }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
@@ -38,12 +49,13 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
   const { address } = useAccount();
 
   const { data, signMessageAsync } = useSignMessage();
-  const[render, setRender] = useState(false);
-  const[iban_rend, setIban] = useState("");
-  const[companyName_rend, setCompanyName] = useState("");
-  const[amount_rend, setAmount] = useState("");
-  const[memo_rend, setMemo] = useState("");
-
+  const [render, setRender] = useState(false);
+  const [iban_rend, setIban] = useState("");
+  const [companyName_rend, setCompanyName] = useState("");
+  const [amount_rend, setAmount] = useState("");
+  const [memo_rend, setMemo] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
+  const [placed, setPlaced] = useState<boolean>(false);
 
   useEffect(() => {
     ; (async () => {
@@ -55,49 +67,43 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
           companyName,
           memo,
         }))
+
         setRender(true);
+        setIban(iban);
+        setCompanyName(companyName);
+        setAmount(amount);
+        setMemo(memo);
+
+        return;
+      } else {
+        const localDetails = window.localStorage.getItem(ORDER_KEY);
+        if (!localDetails) return;
+
+        const { amount, iban, companyName, memo } = JSON.parse(localDetails);
+
         setIban(iban);
         setCompanyName(companyName);
         setAmount(amount);
         setMemo(memo);
       }
 
-      const refresh = window.localStorage.getItem(REFRESH_KEY);
-      const _client = new MoneriumClient("sandbox");
-      var _profile;
+      const _client = new MoneriumClient(MON_ENV);
 
-      if (refresh) {
-        _profile = await _client.auth({
-          client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
-          // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
-          // code: code,
-          refresh_token: refresh,
-          code_verifier: window.localStorage.getItem("codeVerifier"),
-          redirect_uri: "https://payflow-self.vercel.app/pay/"
-        })
-      } else if (code) {
-        _profile = await _client.auth({
-          client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
-          // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
+      if (code) {
+        const _profile = await _client.auth({
+          client_id: CLIENT_ID,
           code: code,
-          // refresh_token: refresh,
           code_verifier: window.localStorage.getItem("codeVerifier"),
-          redirect_uri: "https://payflow-self.vercel.app/pay/"
+          redirect_uri: REDIRECT_URI
         })
-      } else {
-        console.log("no code");
-        return;
-      }
 
-      console.log(_profile.refresh_token)
-
-      if (_profile.refresh_token) {
-        window.localStorage.setItem(REFRESH_KEY, _profile.refresh_token)
+        console.log(_profile);
       }
 
       setClient(_client);
     })();
   }, [code]);
+
 
   const handlePay = async function () {
 
@@ -136,23 +142,30 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
     const orderRes = await client.placeOrder(order);
     console.log(orderRes);
 
-    // TODO: on complete, clear local storage
+    // Cleanup
+    setPlaced(true);
+    window.localStorage.removeItem(ORDER_KEY);
+    
+    // TODO: listen for order success
 
   }
 
   return (
     <VStack>
       {render ? (
-        <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
+        <VStack>
+          <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
+          <MoneriumLogin safe="" />
+        </VStack>
       ) : (
-        <>
-        <h1>Pay</h1>
-        <ScanQR />
-        <h2>or</h2>
-        <RecipientDetails setOrderDetails={setOrderDetails} />
-        </>
-      )}
-      <Button colorScheme="green" onClick={handlePay}>Pay</Button>
+        placed ? (
+          <Heading size='xl'>Order Placed!</Heading>
+        ) : (
+        <VStack>
+          <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
+          <Button colorScheme="green" onClick={handlePay}>Pay</Button>
+        </VStack>
+      ))}
     </VStack>
   )
 }
