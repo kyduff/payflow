@@ -10,6 +10,12 @@ import { MoneriumClient } from '@monerium/sdk';
 import CryptoJS from 'crypto-js';
 
 
+const REDIRECT_URI = "https://payflow-self.vercel.app/pay/";
+// const REDIRECT_URI = "http://localhost:3000/pay/";
+const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6"; // Kyle
+// const CLIENT_ID = "ef7ce008-287e-11ee-81b4-4a6f281798e0"; // Jan
+
+
 export default function MoneriumLogin({ safe }: {safe: string}) {
 
   const loginWithMonerium = async function () {
@@ -21,9 +27,8 @@ export default function MoneriumLogin({ safe }: {safe: string}) {
 
     // Construct the authFlowUrl for your application and redirect your customer.
     let authFlowUrl = client.getAuthFlowURI({
-      client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
-      // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
-      redirect_uri: "https://payflow-self.vercel.app/pay/",
+      client_id: CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
       code_challenge: codeChallenge,
       code_challenge_method: "S256"
 
