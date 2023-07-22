@@ -53,26 +53,37 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
       }
 
       const refresh = window.localStorage.getItem(REFRESH_KEY);
+      const _client = new MoneriumClient("sandbox");
+      var _profile;
 
-      if (!refresh && !code) {
+      if (refresh) {
+        _profile = await _client.auth({
+          client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+          // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
+          // code: code,
+          refresh_token: refresh,
+          code_verifier: window.localStorage.getItem("codeVerifier"),
+          redirect_uri: "https://payflow-self.vercel.app/pay/"
+        })
+      } else if (code) {
+        _profile = await _client.auth({
+          client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+          // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
+          code: code,
+          // refresh_token: refresh,
+          code_verifier: window.localStorage.getItem("codeVerifier"),
+          redirect_uri: "https://payflow-self.vercel.app/pay/"
+        })
+      } else {
         console.log("no code");
         return;
       }
 
-      const _client = new MoneriumClient("sandbox");
+      console.log(_profile.refresh_token)
 
-      const profile = await _client.auth({
-        client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
-        // client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
-        code: code,
-        refresh_token: refresh,
-        code_verifier: window.localStorage.getItem("codeVerifier"),
-        redirect_uri: "https://payflow-self.vercel.app/pay/"
-      })
-
-      console.log(profile.refresh_token)
-
-      window.localStorage.setItem(REFRESH_KEY, profile.refresh_token)
+      if (_profile.refresh_token) {
+        window.localStorage.setItem(REFRESH_KEY, _profile.refresh_token)
+      }
 
       setClient(_client);
     })();
