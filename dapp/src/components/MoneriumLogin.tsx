@@ -14,14 +14,15 @@ export default function MoneriumLogin({ safe }: {safe: string}) {
 
   const loginWithMonerium = async function () {
 
-    const client = new MoneriumClient();
+    const client = new MoneriumClient("production");
 
     const codeVerifier = CryptoJS.lib.WordArray.random(64).toString();
     const codeChallenge = CryptoJS.enc.Base64url.stringify(CryptoJS.SHA256(codeVerifier));
 
     // Construct the authFlowUrl for your application and redirect your customer.
     let authFlowUrl = client.getAuthFlowURI({
-      client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+      // client_id: "efec9397-f584-11ed-8837-1e07284d4ad6", // Kyle
+      client_id: "ef7ce008-287e-11ee-81b4-4a6f281798e0", // Jan
       redirect_uri: "http://localhost:3000/pay/",
       code_challenge: codeChallenge,
       code_challenge_method: "S256"
