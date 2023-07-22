@@ -1,4 +1,5 @@
 import RecipientDetails from "@/components/RecipientDetails";
+import RenderRecipientDetails from "@/components/RenderRecipientDetails";
 import ScanQR from "@/components/ScanQR";
 import { Button, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -36,7 +37,11 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
   const { address } = useAccount();
 
   const { data, signMessageAsync } = useSignMessage();
-
+  const[render, setRender] = useState(false);
+  const[iban_rend, setIban] = useState("");
+  const[companyName_rend, setCompanyName] = useState("");
+  const[amount_rend, setAmount] = useState("");
+  const[memo_rend, setMemo] = useState("");
 
 
   useEffect(() => {
@@ -49,6 +54,11 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
           companyName,
           memo,
         }))
+        setRender(true);
+        setIban(iban_rend);
+        setCompanyName(companyName_rend);
+        setAmount(amount_rend);
+        setMemo(memo_rend);
       }
 
       if (!code) {
@@ -116,7 +126,11 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
       <h1>Pay</h1>
       <ScanQR />
       <h2>or</h2>
-      <RecipientDetails setOrderDetails={setOrderDetails} />
+      {render ? (
+        <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
+      ) : (
+        <RecipientDetails setOrderDetails={setOrderDetails} />
+      )}
       <Button colorScheme="green" onClick={handlePay}>Pay</Button>
     </VStack>
   )
