@@ -10,7 +10,7 @@ import tokenAddresses_goe from '../token_addresses/goerli_add';
    
 export async function display_tokens(address:string, chain:any): Promise<any>{
   if (chain.name=="Polygon"){
-    async function getBalance(contractAddress:string) {
+    const getBalance = async function (contractAddress:string) {
       // Set up the provider
       const provider = new ethers.providers.JsonRpcProvider('https://frosty-aged-diagram.matic.quiknode.pro/cc81614a08c285532b6198f603f90d1fbb3d01f1/');
     
