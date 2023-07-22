@@ -27,13 +27,18 @@ interface OrderDetails {
 const ORDER_KEY = "payflow.orderDetails";
 const REFRESH_KEY = "payflow.refreshKey";
 const CURRENCY = "eur";
+
 const CHAIN = "polygon";
-const NETWORK = "mumbai";
-const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6"; // Kyle
-// const CLIENT_ID = "ef7ce008-287e-11ee-81b4-4a6f281798e0"; // Jan
+const NETWORK = "mainnet";
+
+// const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6"; // Kyle
+const CLIENT_ID = "ef7ce008-287e-11ee-81b4-4a6f281798e0"; // Jan
+
 const REDIRECT_URI = "https://payflow-self.vercel.app/pay/";
 // const REDIRECT_URI = "http://localhost:3000/pay/";
-const MON_ENV = "sandbox";
+
+// const MON_ENV = "sandbox";
+const MON_ENV = "production";
 
 export default function Pay({ code, amount, iban, companyName, memo }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
@@ -137,8 +142,11 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
     const orderRes = await client.placeOrder(order);
     console.log(orderRes);
 
-    // TODO: on complete, clear local storage
+    // Cleanup
     setPlaced(true);
+    window.localStorage.removeItem(ORDER_KEY);
+    
+    // TODO: listen for order success
 
   }
 
