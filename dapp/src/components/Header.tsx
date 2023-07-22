@@ -3,7 +3,6 @@ import NextLink from "next/link"
 import { useAccount } from "wagmi"
 import { Web3Button } from "@web3modal/react";
 import MoneriumLogin from "@/components/MoneriumLogin";
-import { useSafeAppsSDK } from '@safe-global/safe-apps-react-sdk';
 import { use, useState, useEffect } from "react";
 
 
@@ -35,7 +34,7 @@ export const Header = () => {
 
         {address ? (
           <Flex direction="column" align="center" fontSize="sm">
-            <MoneriumLogin /> 
+            
           </Flex>
         ) :(
           <></>
