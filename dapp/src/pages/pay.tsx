@@ -28,8 +28,6 @@ const ORDER_KEY = "payflow.orderDetails";
 const REFRESH_KEY = "payflow.refreshKey";
 const CURRENCY = "eur";
 
-const CHAIN = "polygon";
-const NETWORK = "mainnet";
 
 // const CLIENT_ID = "efec9397-f584-11ed-8837-1e07284d4ad6"; // Kyle
 const CLIENT_ID = "ef7ce008-287e-11ee-81b4-4a6f281798e0"; // Jan
@@ -47,6 +45,7 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
   const [client, setClient] = useState<MoneriumClient>();
   const [orderDetails, setOrderDetails] = useState<OrderDetails>();
   const { address } = useAccount();
+  const { chain } = useNetwork();
 
   const { data, signMessageAsync } = useSignMessage();
   const [render, setRender] = useState(false);
@@ -118,10 +117,13 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
     const message = formatMessage(CURRENCY, amount, iban, new Date())
     const signature = await signMessageAsync({ message })
 
+    const chain_name = (chain?.id == 100 || chain?.id == 10200) ? "gnosis" : "polygon"
+    const network = (chain?.id == 10200) ? "chiado" : "mainnet";
+
     const order = {
       address: address,
       amount: amount,
-      chain: CHAIN,
+      chain: chain_name,
       counterpart: {
         details: {
           companyName
@@ -133,7 +135,7 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
       },
       message: message,
       memo: memo,
-      network: NETWORK,
+      network: network,
       signature: signature,
     }
 
@@ -145,7 +147,7 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
     // Cleanup
     setPlaced(true);
     window.localStorage.removeItem(ORDER_KEY);
-    
+
     // TODO: listen for order success
 
   }
@@ -161,11 +163,11 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
         placed ? (
           <Heading size='xl'>Order Placed!</Heading>
         ) : (
-        <VStack>
-          <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
-          <Button colorScheme="green" onClick={handlePay}>Pay</Button>
-        </VStack>
-      ))}
+          <VStack>
+            <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
+            <Button colorScheme="green" onClick={handlePay}>Pay</Button>
+          </VStack>
+        ))}
     </VStack>
   )
 }

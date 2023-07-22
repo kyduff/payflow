@@ -1,4 +1,4 @@
-import { VStack, Button } from "@chakra-ui/react";
+import { VStack, Button, Stat, StatNumber, StatLabel, StatHelpText, Text } from "@chakra-ui/react";
 
 export default function RecipientDetailsRendered({ amount, iban, companyName, memo }: {amount: any, iban: any, companyName: any, memo: any}) {
 
@@ -6,22 +6,10 @@ export default function RecipientDetailsRendered({ amount, iban, companyName, me
 
   return (
     <VStack>
-  <Button leftIcon={<span>IBAN:</span>} border='2px'
-  borderColor='green.500' size='sm'>
-    {iban}
-  </Button>
-  <Button leftIcon={<span>TRANSFER TO: </span>}border='2px'
-  borderColor='green.500' size='sm'>
-    {companyName}
-  </Button>
-  <Button rightIcon={<span>&euro;</span>} border='2px'
-  borderColor='green.500' size='sm'>
-    {amount}
-  </Button>[2]
-  <Button leftIcon={<span>REF:</span>} border='2px'
-  borderColor='green.500' size='sm'>
-    {memo}
-  </Button>
+      <Text fontSize={"xl"} as={"b"}>{memo}</Text>
+      <Text fontSize={"4xl"} as={"b"}>&euro;{parseInt(amount).toFixed(2)}</Text>
+      <Text><i>to:</i> {companyName}</Text>
+      <Text fontSize={"xs"}>{iban}</Text>
     </VStack>
   )
 }
