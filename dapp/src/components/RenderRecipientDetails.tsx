@@ -6,16 +6,20 @@ export default function RecipientDetailsRendered({ amount, iban, companyName, me
 
   return (
     <VStack>
-  <Button colorScheme='teal' size='sm'>
+  <Button leftIcon={<span>IBAN:</span>} border='2px'
+  borderColor='green.500' size='sm'>
     {iban}
   </Button>
-  <Button colorScheme='teal' size='sm'>
+  <Button leftIcon={<span>TRANSFER TO: </span>}border='2px'
+  borderColor='green.500' size='sm'>
     {companyName}
   </Button>
-  <Button colorScheme='teal' size='sm'>
+  <Button rightIcon={<span>&euro;</span>} border='2px'
+  borderColor='green.500' size='sm'>
     {amount}
   </Button>[2]
-  <Button colorScheme='teal' size='sm'>
+  <Button leftIcon={<span>REF:</span>} border='2px'
+  borderColor='green.500' size='sm'>
     {memo}
   </Button>
     </VStack>

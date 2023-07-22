@@ -55,10 +55,10 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
           memo,
         }))
         setRender(true);
-        setIban(iban_rend);
-        setCompanyName(companyName_rend);
-        setAmount(amount_rend);
-        setMemo(memo_rend);
+        setIban(iban);
+        setCompanyName(companyName);
+        setAmount(amount);
+        setMemo(memo);
       }
 
       if (!code) {
@@ -123,13 +123,15 @@ export default function Pay({ code, amount, iban, companyName, memo }: InferGetS
 
   return (
     <VStack>
-      <h1>Pay</h1>
-      <ScanQR />
-      <h2>or</h2>
       {render ? (
         <RenderRecipientDetails amount={amount_rend} iban={iban_rend} companyName={companyName_rend} memo={memo_rend} />
       ) : (
+        <>
+        <h1>Pay</h1>
+        <ScanQR />
+        <h2>or</h2>
         <RecipientDetails setOrderDetails={setOrderDetails} />
+        </>
       )}
       <Button colorScheme="green" onClick={handlePay}>Pay</Button>
     </VStack>
