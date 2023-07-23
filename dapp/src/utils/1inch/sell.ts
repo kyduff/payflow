@@ -10,7 +10,7 @@ import {key} from "../numbers";
 const EURe = '0xcB444e90D8198415266c6a2724b7900fb12FC56E';
 const OneInchRouter = '0x1111111254EEB25477B68fb85Ed929f73A960582';
 
-export async function sellToEURe(chain: number, fromAddress: string, fromToken: string, amount: string, walletAddress: string, preset: PresetEnum) {
+export async function sellToEURe(chain: number, fromAddress: string, fromToken: string, amount: string) {
     //@ts-ignore
     const web3 = new Web3(window.ethereum)
 

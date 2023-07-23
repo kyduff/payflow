@@ -15,6 +15,7 @@ import tokenAddresses_poly from '../token_addresses/polygon_add';
 import tokenPrices_poly from "./fx_rates/polygon";
 import tokenNames_gno from '../token_addresses/gnosis_names';
 import tokenAddresses_gno from '../token_addresses/gnosis_add';
+import tokenPrices_gno from "./fx_rates/gnosis";
 
 
 import { sellToEURe } from "@/utils/1inch/sell";
@@ -39,7 +40,11 @@ export default function handleSwap({ code }: InferGetServerSidePropsType<typeof 
     const [balances, setBalances] = useState([]);
     const [chain_id, setChainId] = useState<number>(0);
     const [placed_swap, setPlacedSwap] = useState<boolean>(false);
+    const [tokenName_array, setTokenNameArray] = useState<string[]>([]);
+    const [tokenFX_array, setTokenFXArray] = useState<number[]>([]);
 
+    // change this to the actual euros wished to be swapped
+    const eur_swap=0.01;
 
     useEffect(() => {
       ;(async () => 
@@ -50,11 +55,21 @@ export default function handleSwap({ code }: InferGetServerSidePropsType<typeof 
           const chain_id = chain?.id;
           setChainId(chain_id);
           setBalances(balance_array);
+          //polygon
+          if (chain_id==137){
+            setTokenNameArray(tokenNames_poly);
+            setTokenFXArray(tokenPrices_poly);
+          }
+
+          //gnosischain
+          else if (chain_id==100){
+            setTokenNameArray(tokenNames_gno);
+            setTokenFXArray(tokenPrices_gno);
+          }
         })();}, []);
 
-    //TODO conditional on chain use other token names/exch rates
-    const tokenName_array= tokenNames_poly;
-    const tokenFX_array= tokenPrices_poly;
+
+ 
 
   const handleSwap= async function (EURe_swap_amount: number, swap_token_ind: number) {
 
@@ -110,7 +125,7 @@ export default function handleSwap({ code }: InferGetServerSidePropsType<typeof 
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green" onClick={() => handleSwap(0.01,1)} >Pay with {tokenName_array[1]}</Button>
+        <Button colorScheme="green" onClick={() => handleSwap(eur_swap,1)} >Pay with {tokenName_array[1]}</Button>
         </AccordionPanel>
       </AccordionItem>
 
@@ -124,7 +139,7 @@ export default function handleSwap({ code }: InferGetServerSidePropsType<typeof 
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay with {tokenName_array[2]}</Button>
+        <Button colorScheme="green" onClick={() => handleSwap(eur_swap,2)}>Pay with {tokenName_array[2]}</Button>
         </AccordionPanel>
       </AccordionItem>
 
@@ -138,7 +153,7 @@ export default function handleSwap({ code }: InferGetServerSidePropsType<typeof 
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay with {tokenName_array[3]}</Button>
+        <Button colorScheme="green" onClick={() => handleSwap(eur_swap,3)}>Pay with {tokenName_array[3]}</Button>
         </AccordionPanel>
       </AccordionItem>
 
@@ -152,7 +167,7 @@ export default function handleSwap({ code }: InferGetServerSidePropsType<typeof 
           </AccordionButton>
         </h2>
         <AccordionPanel pb={4}>
-        <Button colorScheme="green">Pay with {tokenName_array[4]}</Button>
+        <Button colorScheme="green" onClick={() => handleSwap(eur_swap,4)}>Pay with {tokenName_array[4]}</Button>
         </AccordionPanel>
       </AccordionItem>
      </Accordion>

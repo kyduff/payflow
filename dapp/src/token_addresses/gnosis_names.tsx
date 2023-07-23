@@ -1,6 +1,6 @@
 const tokenNames_gno: string[] = [
     "EURe",
-    "MATIC",
+    "wXDAI",
     "WETH",
     "USDT",
     "GNO",
