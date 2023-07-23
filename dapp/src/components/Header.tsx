@@ -17,7 +17,7 @@ export const Header = () => {
   return (loaded &&
     <Flex
       w="full"
-      pb={2}
+      p={2}
       my={4}
       align="center"
       justify="space-between"
@@ -26,19 +26,12 @@ export const Header = () => {
     >
       <NextLink href="/">
         <Text fontWeight="bold" fontStyle="italic" fontSize="2xl">
-          Payflow
+          PayFlow
         </Text>
       </NextLink>
       <ButtonGroup isAttached gap={2} alignItems="center">
       <Web3Button />
-
-        {address ? (
-          <Flex direction="column" align="center" fontSize="sm">
-            
-          </Flex>
-        ) :(
-          <></>
-        )}
+       
       </ButtonGroup>
     </Flex>
   )
