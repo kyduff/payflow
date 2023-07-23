@@ -36,14 +36,12 @@ export async function sellToEURe(chain: number, fromAddress: string, fromToken: 
     })
 
     const quote = await getQuote(sdk, fromToken, EURe, amount)
-
     const info = await createOrder(sdk,
         fromToken,
         EURe,
         amount,
         fromAddress,
         PresetEnum.fast);
-    console.log("info:: ", JSON.stringify(info))
 
     // we have tx finality once this promise resolves
     const orders = await ordersByMaker(sdk, fromAddress)

@@ -36,7 +36,7 @@ export async function display_tokens(address:string, chain:any): Promise<any>{
   // Array to store the fetched balances
   const fetched_balances: number[] = [];
 
-  if (chain.name=="Polygon"){
+  if (chain.id==137){
     // Loop through the tokenlist array and call getBalance(element) for each element
     for (const element of tokenAddresses_poly) {
     const balance: any = await getBalance(polygon_abi,element);
@@ -44,7 +44,7 @@ export async function display_tokens(address:string, chain:any): Promise<any>{
     }
   }
 
-  if (chain.name=="Gnosis"){
+  if (chain.name==100){
         // Loop through the tokenlist array and call getBalance(element) for each element
     for (const element of tokenAddresses_gno) {
       const balance: any = await getBalance(gnosis_api,element);

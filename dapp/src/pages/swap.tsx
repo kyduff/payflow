@@ -74,13 +74,17 @@ export default function handleSwap({ code }: InferGetServerSidePropsType<typeof 
   const handleSwap= async function (EURe_swap_amount: number, swap_token_ind: number) {
 
       //convert into wei for selltoEURe call
-      const value_swap = EURe_swap_amount*tokenFX_array[swap_token_ind]*10**18;
+      // min value for swap hardcoded here for now
+      let value_swap = EURe_swap_amount*tokenFX_array[swap_token_ind]*10**18;
+      if (value_swap < 10000000000000000) {
+        value_swap = 10000000000000000;
+      }
       if (!address && chain) return;
   
       const swap_params = {
-        chain: 137,
+        chain: chain_id,
         fromAddress: address,
-        fromToken: tokenAddresses_poly[swap_token_ind],
+        fromToken: tokenAddresses_gno[swap_token_ind],
         amount: value_swap,
       }
 
